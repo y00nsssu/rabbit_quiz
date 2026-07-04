@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>토끼 성장 퀴즈!</title>
+<style>
+*{box-sizing:border-box}
+body{
+    margin:0;
+    font-family:Arial,"맑은 고딕",sans-serif;
+    background:linear-gradient(135deg,#fff4fa,#fff,#f7fbff);
+    color:#222;
+}
+.wrap{max-width:1200px;margin:0 auto;padding:25px}
+.title{text-align:center;font-size:42px;color:#ff4f9a;font-weight:900}
+.sub{text-align:center;color:#666;margin-bottom:30px}
+.game{display:grid;grid-template-columns:360px 1fr;gap:35px}
+.left,.quiz{
+    background:white;
+    border-radius:24px;
+    box-shadow:0 8px 25px rgba(255,90,150,.18);
+    border:1px solid #ffd4e5;
+}
+.left{padding:25px;text-align:center}
+.stage{
+    height:360px;
+    position:relative;
+    display:flex;
+    align-items:end;
+    justify-content:center;
+}
+.sparkle{position:absolute;font-size:28px;animation:twinkle 1.5s infinite alternate}
+.s1{left:30px;top:80px}.s2{right:35px;top:130px}.s3{left:70px;top:210px}
+@keyframes twinkle{from{opacity:.3;transform:scale(.8)}to{opacity:1;transform:scale(1.1)}}
+
+.rabbit{
+    position:absolute;
+    bottom:55px;
+    width:170px;
+    height:250px;
+    transition:.4s;
+}
+.ear{
+    position:absolute;
+    top:0;
+    width:48px;
+    height:125px;
+    background:white;
+    border:4px solid #d99a9a;
+    border-radius:50%;
+}
+.ear:after{
+    content:"";
+    position:absolute;
+    top:25px;
+    left:12px;
+    width:20px;
+    height:75px;
+    background:#ff9fc1;
+    border-radius:50%;
+}
+.ear.l{left:30px;transform:rotate(-14deg)}
+.ear.r{right:30px;transform:rotate(14deg)}
+.head{
+    position:absolute;
+    top:78px;
+    left:10px;
+    width:150px;
+    height:130px;
+    background:white;
+    border:4px solid #d99a9a;
+    border-radius:50%;
+    z-index:3;
+}
+.eye{
+    position:absolute;
+    top:50px;
+    width:22px;
+    height:28px;
+    background:#5b2d23;
+    border-radius:50%;
+}
+.eye:after{
+    content:"";
+    position:absolute;
+    top:5px;
+    left:6px;
+    width:7px;
+    height:7px;
+    background:white;
+    border-radius:50%;
+}
+.eye.l{left:38px}.eye.r{right:38px}
+.cheek{
+    position:absolute;
+    top:78px;
+    width:30px;
+    height:18px;
+    background:#ffadc4;
+    border-radius:50%;
+}
+.cheek.l{left:15px}.cheek.r{right:15px}
+.mouth{
+    position:absolute;
+    top:78px;
+    left:61px;
+    font-size:24px;
+}
+.body{
+    position:absolute;
+    top:185px;
+    left:39px;
+    width:95px;
+    height:78px;
+    background:white;
+    border:4px solid #d99a9a;
+    border-radius:45%;
+    z-index:2;
+}
+.arm{
+    position:absolute;
+    top:200px;
+    width:28px;
+    height:58px;
+    background:white;
+    border:4px solid #d99a9a;
+    border-radius:50%;
+    z-index:4;
+}
+.arm.l{left:28px;transform:rotate(25deg)}
+.arm.r{right:28px;transform:rotate(-25deg)}
+.foot{
+    position:absolute;
+    bottom:-8px;
+    width:35px;
+    height:18px;
+    background:white;
+    border:4px solid #d99a9a;
+    border-radius:50%;
+    z-index:4;
+}
+.foot.l{left:45px}.foot.r{right:45px}
+
+.platform{
+    position:absolute;
+    bottom:25px;
+    width:260px;
+    height:55px;
+    background:#98e557;
+    border-radius:50%;
+    box-shadow:0 13px 0 #9a5f30;
+}
+
+.crown{
+    display:none;
+    position:absolute;
+    top:60px;
+    left:61px;
+    z-index:5;
+    font-size:45px;
+}
+.carrot-hand{
+    display:none;
+    position:absolute;
+    top:190px;
+    right:20px;
+    font-size:38px;
+    z-index:6;
+    transform:rotate(-25deg);
+}
+
+.rabbit.level2{transform:scale(1.08)}
+.rabbit.level2 .carrot-hand{display:block}
+.rabbit.level2 .head{background:#fffdf6}
+.rabbit.level3{transform:scale(1.15)}
+.rabbit.level3 .crown{display:block}
+.rabbit.level3 .carrot-hand{display:block}
+.rabbit.level3 .body{background:#fff8fd}
+
+.status{
+    padding:20px;
+    border-radius:20px;
+    background:#fff;
+    border:1px solid #ffd4e5;
+}
+.carrots{font-size:27px;letter-spacing:6px}
+.levelText{font-size:36px;color:#ff4f9a;font-weight:900}
+.bar{
+    height:18px;
+    background:#eee;
+    border-radius:20px;
+    overflow:hidden;
+}
+.barIn{
+    height:100%;
+    width:0%;
+    background:#ff4f9a;
+    border-radius:20px;
+    transition:.3s;
+}
+.hint{
+    margin-top:15px;
+    padding:12px;
+    background:#fff6fa;
+    border:1px solid #ffd4e5;
+    border-radius:14px;
+    color:#555;
+    font-size:14px;
+}
+
+.quiz{padding:35px}
+.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:3px solid #ffe0ec;
+    padding-bottom:18px;
+}
+.quizLevel{color:#ff4f9a;font-size:25px;font-weight:900}
+.count{background:#fff0f6;padding:8px 15px;border-radius:20px}
+.q{
+    margin:35px 0 25px;
+    font-size:24px;
+    font-weight:800;
+}
+.choice{
+    padding:17px 20px;
+    margin:14px 0;
+    border:2px solid #eee;
+    border-radius:14px;
+    cursor:pointer;
+    font-size:18px;
+}
+.choice:hover{border-color:#ff4f9a;background:#fff5fa}
+.choice.correct{border-color:#ff4f9a;background:#fff0f6;color:#ff2d83;font-weight:bold}
+.choice.wrong{border-color:#aaa;background:#f2f2f2;color:#777}
+.result{
+    margin-top:25px;
+    padding:20px;
+    border-radius:16px;
+    background:#fff6fa;
+    border:1px solid #ffd4e5;
+    font-size:20px;
+    font-weight:800;
+    min-height:65px;
+}
+.btns{text-align:right;margin-top:25px}
+button{
+    border:0;
+    padding:15px 28px;
+    border-radius:14px;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+}
+.next{background:#ff4f9a;color:white}
+.restart{background:#eee;color:#555;margin-right:10px}
+.road{
+    margin-top:25px;
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    background:white;
+    border:1px solid #ffd4e5;
+    border-radius:18px;
+    overflow:hidden;
+}
+.road div{
+    padding:15px;
+    text-align:center;
+    color:#777;
+    font-weight:bold;
+}
+.road .on{color:#ff4f9a;background:#fff6fa}
+@media(max-width:900px){
+    .game{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="title">🥕 토끼 성장 퀴즈! 🥕</div>
+    <div class="sub">문제를 맞히면 토끼가 점점 성장해요!</div>
+
+    <div class="game">
+        <div class="left">
+            <div class="stage">
+                <div class="sparkle s1">✨</div>
+                <div class="sparkle s2">⭐</div>
+                <div class="sparkle s3">💫</div>
+
+                <div class="rabbit" id="rabbit">
+                    <div class="crown">👑</div>
+                    <div class="carrot-hand">🥕</div>
+                    <div class="ear l"></div>
+                    <div class="ear r"></div>
+                    <div class="head">
+                        <div class="eye l"></div>
+                        <div class="eye r"></div>
+                        <div class="cheek l"></div>
+                        <div class="cheek r"></div>
+                        <div class="mouth">ㅅ</div>
+                    </div>
+                    <div class="body"></div>
+                    <div class="arm l"></div>
+                    <div class="arm r"></div>
+                    <div class="foot l"></div>
+                    <div class="foot r"></div>
+                </div>
+
+                <div class="platform"></div>
+            </div>
+
+            <div class="status">
+                <p>성장 단계</p>
+                <div class="carrots" id="carrots">🥕 ⚪ ⚪</div>
+                <div class="levelText">Lv. <span id="level">1</span></div>
+                <div class="bar"><div class="barIn" id="bar"></div></div>
+                <p>경험치: <b id="exp">0</b> / 50</p>
+                <div class="hint" id="hint">
+                    ⭐ 레벨업까지 50 경험치가 필요해요!
+                </div>
+            </div>
+        </div>
+
+        <div class="quiz">
+            <div class="top">
+                <div class="quizLevel" id="quizLevel">레벨 1 - 개념확인퀴즈</div>
+                <div class="count" id="count">문제 1 / 5</div>
+            </div>
+
+            <div class="q" id="question"></div>
+            <div id="choices"></div>
+            <div class="result" id="result">정답을 선택해 주세요!</div>
+
+            <div class="btns">
+                <button class="restart" onclick="restart()">다시 풀기</button>
+                <button class="next" onclick="nextQuestion()">다음 문제 →</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="road">
+        <div id="road1" class="on">🐰 Lv.1<br>초보 토끼</div>
+        <div id="road2">🥕 Lv.2<br>달콤 토끼</div>
+        <div id="road3">👑 Lv.3<br>왕관 토끼</div>
+    </div>
+</div>
+
+<script>
+const quizData = [
+    {
+        level: 1,
+        title: "레벨 1 - 개념확인퀴즈",
+        questions: [
+            {
+                q: "HTML에서 가장 큰 제목을 나타내는 태그는 무엇일까요?",
+                c: ["<p>", "<h6>", "<title>", "<h1>"],
+                a: 3
+            },
+            {
+                q: "웹페이지의 내용을 작성하는 기본 언어는 무엇일까요?",
+                c: ["HTML", "CSS", "JavaScript", "Python"],
+                a: 0
+            },
+            {
+                q: "글자 색, 배경색, 크기 같은 디자인을 담당하는 언어는?",
+                c: ["HTML", "CSS", "C언어", "SQL"],
+                a: 1
+            },
+            {
+                q: "이미지를 넣을 때 사용하는 HTML 태그는?",
+                c: ["<img>", "<image>", "<photo>", "<picture>"],
+                a: 0
+            },
+            {
+                q: "버튼을 만들 때 사용하는 태그는?",
+                c: ["<click>", "<btn>", "<button>", "<inputText>"],
+                a: 2
+            }
+        ]
+    },
+    {
+        level: 2,
+        title: "레벨 2 - 응용퀴즈",
+        questions: [
+            {
+                q: "CSS에서 배경색을 바꾸는 속성은?",
+                c: ["color", "background-color", "font-size", "border"],
+                a: 1
+            },
+            {
+                q: "JavaScript에서 버튼 클릭 이벤트를 연결할 때 많이 쓰는 속성은?",
+                c: ["onclick", "href", "src", "alt"],
+                a: 0
+            },
+            {
+                q: "HTML에서 링크를 만들 때 사용하는 태그는?",
+                c: ["<a>", "<link>", "<url>", "<href>"],
+                a: 0
+            },
+            {
+                q: "CSS에서 요소의 모서리를 둥글게 만드는 속성은?",
+                c: ["margin", "padding", "border-radius", "display"],
+                a: 2
+            },
+            {
+                q: "JavaScript에서 화면에 경고창을 띄우는 함수는?",
+                c: ["alert()", "print()", "show()", "message()"],
+                a: 0
+            }
+        ]
+    },
+    {
+        level: 3,
+        title: "레벨 3 - 심화퀴즈",
+        questions: [
+            {
+                q: "HTML 문서에서 실제 화면에 보이는 내용이 들어가는 태그는?",
+                c: ["<head>", "<body>", "<title>", "<meta>"],
+                a: 1
+            },
+            {
+                q: "CSS에서 요소를 가로로 나란히 배치할 때 자주 사용하는 display 값은?",
+                c: ["block", "flex", "hidden", "fixed"],
+                a: 1
+            },
+            {
+                q: "JavaScript에서 변수 값을 바꿀 수 있게 선언하는 키워드는?",
+                c: ["let", "const", "fixed", "style"],
+                a: 0
+            },
+            {
+                q: "사용자가 입력한 값이나 상태를 저장해 두는 웹 저장소는?",
+                c: ["localStorage", "font-family", "border", "query"],
+                a: 0
+            },
+            {
+                q: "HTML, CSS, JavaScript의 역할 설명으로 맞는 것은?",
+                c: [
+                    "HTML은 디자인, CSS는 동작, JS는 구조",
+                    "HTML은 구조, CSS는 디자인, JS는 동작",
+                    "HTML은 저장, CSS는 계산, JS는 제목",
+                    "셋 다 같은 역할"
+                ],
+                a: 1
+            }
+        ]
+    }
+];
+
+let levelIndex = 0;
+let questionIndex = 0;
+let exp = 0;
+let level = 1;
+let answered = false;
+
+function showQuestion(){
+    answered = false;
+
+    const currentLevel = quizData[levelIndex];
+    const currentQuestion = currentLevel.questions[questionIndex];
+
+    document.getElementById("quizLevel").innerText = currentLevel.title;
+    document.getElementById("count").innerText = `문제 ${questionIndex + 1} / ${currentLevel.questions.length}`;
+    document.getElementById("question").innerText = "Q. " + currentQuestion.q;
+    document.getElementById("result").innerText = "정답을 선택해 주세요!";
+
+    const choices = document.getElementById("choices");
+    choices.innerHTML = "";
+
+    currentQuestion.c.forEach((text, i) => {
+        const div = document.createElement("div");
+        div.className = "choice";
+        div.innerText = String.fromCharCode(65 + i) + ". " + text;
+        div.onclick = () => checkAnswer(i, div);
+        choices.appendChild(div);
+    });
+
+    updateUI();
+}
+
+function checkAnswer(selected, element){
+    if(answered) return;
+    answered = true;
+
+    const currentQuestion = quizData[levelIndex].questions[questionIndex];
+    const allChoices = document.querySelectorAll(".choice");
+
+    if(selected === currentQuestion.a){
+        element.classList.add("correct");
+        exp += 10;
+        document.getElementById("result").innerText = "정답이에요! 🎉 토끼가 성장했어요! 🥕 +10 경험치";
+    }else{
+        element.classList.add("wrong");
+        allChoices[currentQuestion.a].classList.add("correct");
+        document.getElementById("result").innerText = "아쉬워요! 정답을 확인하고 다음 문제로 가요.";
+    }
+
+    if(exp >= 50){
+        exp = 0;
+
+        if(level < 3){
+            level++;
+            levelIndex++;
+            questionIndex = -1;
+            document.getElementById("result").innerText = `레벨업 성공! 🎉 Lv.${level} 토끼로 성장했어요!`;
+        }else{
+            exp = 50;
+        }
+    }
+
+    updateUI();
+}
+
+function nextQuestion(){
+    questionIndex++;
+
+    if(questionIndex >= quizData[levelIndex].questions.length){
+        if(levelIndex < quizData.length - 1){
+            levelIndex++;
+            level++;
+            questionIndex = 0;
+            exp = 0;
+            showQuestion();
+            return;
+        }else{
+            finishGame();
+            return;
+        }
+    }
+
+    showQuestion();
+}
+
+function updateUI(){
+    document.getElementById("level").innerText = level;
+    document.getElementById("exp").innerText = exp;
+    document.getElementById("bar").style.width = (exp / 50 * 100) + "%";
+
+    const rabbit = document.getElementById("rabbit");
+    rabbit.className = "rabbit";
+    if(level === 2) rabbit.classList.add("level2");
+    if(level === 3) rabbit.classList.add("level3");
+
+    if(level === 1){
+        document.getElementById("carrots").innerText = "🥕 ⚪ ⚪";
+        document.getElementById("hint").innerText = "⭐ Lv.2까지 경험치를 모아 보세요!";
+    }else if(level === 2){
+        document.getElementById("carrots").innerText = "🥕 🥕 ⚪";
+        document.getElementById("hint").innerText = "🎁 토끼가 당근을 얻었어요!";
+    }else{
+        document.getElementById("carrots").innerText = "🥕 🥕 🥕";
+        document.getElementById("hint").innerText = "👑 최고 단계 왕관 토끼가 되었어요!";
+    }
+
+    document.getElementById("road1").className = level === 1 ? "on" : "";
+    document.getElementById("road2").className = level === 2 ? "on" : "";
+    document.getElementById("road3").className = level === 3 ? "on" : "";
+}
+
+function finishGame(){
+    document.getElementById("quizLevel").innerText = "퀴즈 완료!";
+    document.getElementById("count").innerText = "끝";
+    document.getElementById("question").innerText = "축하합니다! 모든 레벨을 완료했어요 🎉";
+    document.getElementById("choices").innerHTML = "";
+    document.getElementById("result").innerText = `최종 토끼는 Lv.${level} 왕관 토끼입니다! 👑`;
+    updateUI();
+}
+
+function restart(){
+    levelIndex = 0;
+    questionIndex = 0;
+    exp = 0;
+    level = 1;
+    answered = false;
+    showQuestion();
+}
+
+showQuestion();
+</script>
+</body>
+</html>
